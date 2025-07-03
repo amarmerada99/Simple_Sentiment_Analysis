@@ -19,7 +19,7 @@ if text:
     st.write(f"**Sentiment:** {result['label']}")
     st.write(f"**Confidence:** {result['score']}")
 
-    prompt = "respond as the business owner to the following review: " + text
+    prompt = "As the business owner, respond thoughtfully and professionally to the following review: " + text + ". Make sure to acknowledge their feedback, express appreciation, and offer a resolution if necessary."
     messages = [
         {"role": "user", "content": prompt}
     ]
@@ -30,12 +30,17 @@ if text:
         add_generation_prompt = True,
         enable_thinking=True
     )
-    model_inputs = tokenizer([text], return_tensors="pt").to(model.device)
+    model_inputs = tokenizer(response, return_tensors="pt").to(model.device)
 
     generated_ids = model.generate(
         **model_inputs,
-        max_new_tokens=512,
-        pad_token_id=tokenizer.eos_token_id
+        max_new_tokens=100,
+        pad_token_id=tokenizer.eos_token_id,
+        do_sample = True,
+        top_k=50,
+        top_p=0.9,
+        temperature = 0.4,
+        repetition_penalty = 1.5
     )
 
     full_response_decoded = tokenizer.decode(generated_ids[0], skip_special_tokens=True)
